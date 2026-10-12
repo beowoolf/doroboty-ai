@@ -204,6 +204,14 @@ Evidence: [supplement SQL](supabase/marketplace-fixtures.sql),
 [schema/fixture checks](scripts/migration-check.mjs),
 [database runbook](docs/supabase.md).
 
+On 2026-10-12, an explicitly authorized one-off import also placed this synthetic
+set in the hosted teaching project `vgxoiljieuhvnpuojaet`. Its public marketplace
+then contained 106 published roles and 28 companies, including the 25 generated
+company identities. New companies store deployed local PNG URLs. Original rows,
+applications and memberships were preserved; existing employers still do not
+gain access to these 25 organizations. This is not a commercial production seed
+or an automatic deployment step. See the [hosted import record](docs/tasks/hosted-marketplace-fixtures.md).
+
 | ID / status        | Entry                               | Flow and result                                                                                                                                                                                                                                                                                                          |
 | ------------------ | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | SYS-01 Available   | Shared shells and controls          | Graphical Untitled tokens/components, Base UI shadcn primitives, locally loaded Timeless Grotesk font, Lucide icons, robot brand, responsive navigation, focus/validation/loading/empty states and light/dark/system themes. Theme preference persists in the browser; this is distinct from domain-data persistence.    |

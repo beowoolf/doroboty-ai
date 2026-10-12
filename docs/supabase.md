@@ -63,6 +63,23 @@ relationships, variety, rerun preservation and access boundaries against the mig
 
 ## Domain deployment
 
+### Authorized hosted teaching fixture import
+
+On 2026-10-12, the user explicitly requested the optional 100-role/25-company
+set on the hosted teaching application. A reviewed one-off transaction targeted
+only `vgxoiljieuhvnpuojaet`, retained synthetic notices and reserved IDs, assigned
+deployed logo URLs and preserved pre-existing records and memberships. The hosted
+list reached 106 published roles across 28 companies. See the
+[operation record](tasks/hosted-marketplace-fixtures.md).
+
+This does not weaken the local-only runner or authorize seeding another cloud
+project. Code deployment and data import are separate operations. Future cloud
+imports require an explicit target and user authorization, preflight counts and
+collision checks, transaction boundaries, preservation checks and public-page
+verification. Never import real personal data or reset a hosted database for fixtures.
+
+### Schema deployment
+
 Before deployment, run `npx supabase db push --dry-run` against the intended project, review every migration, and test RLS with candidate, employer, other-organization, operator, and anonymous sessions. Never use `db reset` against a remote or production project.
 
 For an explicitly isolated rehearsal project, `npm run case:rehearsal-accounts` can create the
