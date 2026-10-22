@@ -560,7 +560,7 @@ M11-34 requires a real first-time participant. The fresh-account automated journ
       employer inbox/detail, with neutral wording, missing/zero states and isolation tests.
       Keep the existing versioned proxy and employer-only hiring decisions. See
       `docs/tasks/registration-match-score.md` for actual verification and release evidence.
-- [ ] **UX-04** After an explicit deployment decision, release UX-03 to the hosted app and
+- [x] **UX-04** After an explicit deployment decision, release UX-03 to the hosted app and
       separately verify Confirm email is disabled in the intended cloud Supabase project.
       Local config changes alone do not update cloud Auth.
 

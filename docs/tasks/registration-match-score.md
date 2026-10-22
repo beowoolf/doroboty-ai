@@ -52,5 +52,31 @@ Acceptance:
   7 applications and 23 users. Only the isolated 583xx test database was reset.
 - Local dev remains at http://127.0.0.1:3107; listing and signup respond HTTP 200.
   FEATURES.md records source behavior and cloud configuration requirements. No
-  cloud auth setting or production deployment changed in this task. UX-04 tracks
-  hosted rollout pending the user's deployment choice.
+  cloud auth setting or production deployment changed during the local phase. The
+  subsequent user-authorized hosted release is recorded below.
+
+## Hosted release — 2026-10-22
+
+- The user explicitly approved deploying UX-03 and disabling hosted email confirmation.
+  PR #3 merged as c61786f. Implementation e2b0a55 was built successfully on Vercel as
+  dpl_45FK7eqeNXG4DsvbpefUCqTTudPt, checked before promotion, then promoted to
+  https://doroboty-ai-case.vercel.app. Previous deployment for rollback is
+  dpl_53XLTtvXVwex5hSraPNR6sLovBbz.
+- Auth preflight confirmed signup and email authentication enabled, autoconfirm false
+  and the canonical site URL. Used an isolated minimal CLI config declaring only
+  auth.email.enable_confirmations=false, not the full local configuration.
+- Reviewed config diff: one declared update and nine remote-only properties. Push
+  updated exactly that one auth flag. Postflight reported zero declared differences;
+  all nine remote-only values stayed unchanged, including redirect URLs, TOTP MFA,
+  site URL, email throttling, OTP length, pooler limits and storage vector setting.
+  Cloud signup no longer requires the activation email. Recovery/email-change
+  behavior was not changed. No migrations, database reset or account/data mutations.
+- Protected deployment checks passed for listing and the new signup copy. After
+  promotion, six project deployment smoke routes passed, plus checks for signup
+  copy, a formatted synthetic role, a company logo and both signed-out role guards.
+  Private authenticated flows and signup account creation were tested on isolated
+  local Supabase in the implementation phase, not repeated with production users.
+- GitHub CI was still pending at release verification; no passing CI claim or
+  Lighthouse threshold change. The implementation's recorded local checks passed.
+- FEATURES.md was reviewed: its source behavior and separate cloud configuration
+  requirement remain accurate. This follow-up records deployment evidence only.
