@@ -23,16 +23,28 @@ export default async function EmployerInboxPage({
   searchParams: Promise<{ status?: string; job?: string }>;
 }) {
   if (!getSupabaseConfig().configured) return null;
-  const { client, profile } = await requireProfile(["employer", "operator"]);
+  const { client, user, profile } = await requireProfile(["employer", "operator"]);
   const params = await searchParams;
   const status = statuses.includes(params.status as (typeof statuses)[number])
     ? params.status
     : undefined;
 
-  const { data: jobs, error: jobsError } = await client
-    .from("jobs")
-    .select("id, title")
-    .order("title");
+  let jobQuery = client.from("jobs").select("id, title, slug, company_id").order("title");
+  if (profile.role === "employer") {
+    const { data: memberships, error: membershipError } = await client
+      .from("organization_memberships")
+      .select("organization:organizations(company_id)")
+      .eq("user_id", user.id);
+    if (membershipError) throw new Error("Nie udało się wczytać organizacji.");
+    const companyIds = (memberships ?? []).flatMap((membership) => {
+      const organization = Array.isArray(membership.organization)
+        ? membership.organization[0]
+        : membership.organization;
+      return organization?.company_id ? [organization.company_id] : [];
+    });
+    jobQuery = jobQuery.in("company_id", companyIds);
+  }
+  const { data: jobs, error: jobsError } = await jobQuery;
   if (jobsError) throw new Error("Nie udało się wczytać ofert do filtra.");
   const selectedJob = (jobs ?? []).some((job) => job.id === params.job) ? params.job : undefined;
 
@@ -58,7 +70,10 @@ export default async function EmployerInboxPage({
           {profile.role === "operator" ? "Widok operatora" : "Widok pracodawcy"}
         </span>
       </div>
-      <form className="mb-6 grid gap-3 rounded-xl bg-secondary p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end">
+      <form
+        key={`${selectedJob ?? ""}:${status ?? ""}`}
+        className="mb-6 grid gap-3 rounded-xl bg-secondary p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end"
+      >
         <label className="font-ui text-sm font-medium">
           Ogłoszenie
           <FormSelect
@@ -68,7 +83,10 @@ export default async function EmployerInboxPage({
             defaultValue={selectedJob ?? ""}
             options={[
               { value: "", label: "Wszystkie ogłoszenia" },
-              ...(jobs ?? []).map((job) => ({ value: job.id, label: job.title })),
+              ...(jobs ?? []).map((job) => ({
+                value: job.id,
+                label: `${job.title} · ${job.slug}`,
+              })),
             ]}
           />
         </label>

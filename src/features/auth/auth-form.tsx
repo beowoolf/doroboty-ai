@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -20,6 +20,10 @@ import {
   type AccountRole,
 } from "./audience";
 export type AuthMode = "sign-in" | "sign-up" | "forgot-password" | "update-password";
+
+const subscribeToHydration = () => () => {};
+const hydratedSnapshot = () => true;
+const serverSnapshot = () => false;
 
 type AuthValues = {
   firstName: string;
@@ -66,6 +70,7 @@ export function AuthForm({
   signedInRole?: AccountRole | null;
   roleError?: boolean;
 }) {
+  const hydrated = useSyncExternalStore(subscribeToHydration, hydratedSnapshot, serverSnapshot);
   const [message, setMessage] = useState("");
   const [currentRole, setCurrentRole] = useState(signedInRole);
   const [switchingAccount, setSwitchingAccount] = useState(false);
@@ -195,7 +200,7 @@ export function AuthForm({
       setError("root", {
         message:
           mode === "sign-in"
-            ? "Nie udało się zalogować. Sprawdź e-mail, hasło i potwierdzenie konta."
+            ? "Nie udało się zalogować. Sprawdź e-mail i hasło."
             : "Nie udało się wykonać tej operacji. Spróbuj ponownie za chwilę.",
       });
     }
@@ -234,7 +239,7 @@ export function AuthForm({
         <span>DoRoboty.ai</span>
       </div>
       <div className="auth-content">
-        <Link href="/" className="text-link">
+        <Link href="/oferty" className="text-link">
           <ArrowLeft size={16} />
           Wróć do ofert
         </Link>
@@ -283,117 +288,135 @@ export function AuthForm({
               </Link>
             </div>
           ) : (
-            <form className="form-stack" noValidate onSubmit={handleSubmit(submit)}>
-              {roleError && !currentRole && (
-                <p role="alert" className="error-message">
-                  Zaloguj się kontem odpowiednim dla tej strefy.
+            <form
+              method="post"
+              action="/auth/unavailable"
+              noValidate
+              onSubmit={handleSubmit(submit)}
+            >
+              {!hydrated && (
+                <p role="status" className="text-sm text-muted-foreground">
+                  Uruchamianie formularza. Jeśli pola pozostają nieaktywne, włącz JavaScript i
+                  odśwież stronę.
                 </p>
               )}
-              {mode === "sign-up" && (
-                <div className="grid gap-[var(--gui-space-s)] sm:grid-cols-2">
+              <noscript>
+                <p role="alert" className="error-message">
+                  Logowanie wymaga JavaScriptu. Włącz go i odśwież stronę. Dane nie zostały wysłane.
+                </p>
+              </noscript>
+              <fieldset className="form-stack min-w-0" disabled={!hydrated}>
+                {roleError && !currentRole && (
+                  <p role="alert" className="error-message">
+                    Zaloguj się kontem odpowiednim dla tej strefy.
+                  </p>
+                )}
+                {mode === "sign-up" && (
+                  <div className="grid gap-[var(--gui-space-s)] sm:grid-cols-2">
+                    <div className="field">
+                      <Label htmlFor="firstName">Imię</Label>
+                      <Input
+                        id="firstName"
+                        autoComplete="given-name"
+                        aria-invalid={!!errors.firstName}
+                        aria-describedby={errors.firstName ? "first-name-error" : undefined}
+                        {...register("firstName")}
+                      />
+                      {errors.firstName && (
+                        <p id="first-name-error" className="error-message">
+                          {errors.firstName.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="field">
+                      <Label htmlFor="lastName">Nazwisko</Label>
+                      <Input
+                        id="lastName"
+                        autoComplete="family-name"
+                        aria-invalid={!!errors.lastName}
+                        aria-describedby={errors.lastName ? "last-name-error" : undefined}
+                        {...register("lastName")}
+                      />
+                      {errors.lastName && (
+                        <p id="last-name-error" className="error-message">
+                          {errors.lastName.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {mode !== "update-password" && (
                   <div className="field">
-                    <Label htmlFor="firstName">Imię</Label>
+                    <Label htmlFor="email">Email</Label>
                     <Input
-                      id="firstName"
-                      autoComplete="given-name"
-                      aria-invalid={!!errors.firstName}
-                      aria-describedby={errors.firstName ? "first-name-error" : undefined}
-                      {...register("firstName")}
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="you@example.com"
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? "email-error" : undefined}
+                      {...register("email")}
                     />
-                    {errors.firstName && (
-                      <p id="first-name-error" className="error-message">
-                        {errors.firstName.message}
+                    {errors.email && (
+                      <p id="email-error" className="error-message">
+                        {errors.email.message}
                       </p>
                     )}
                   </div>
+                )}
+                {mode !== "forgot-password" && (
                   <div className="field">
-                    <Label htmlFor="lastName">Nazwisko</Label>
+                    <Label htmlFor="password">Hasło</Label>
                     <Input
-                      id="lastName"
-                      autoComplete="family-name"
-                      aria-invalid={!!errors.lastName}
-                      aria-describedby={errors.lastName ? "last-name-error" : undefined}
-                      {...register("lastName")}
+                      id="password"
+                      type="password"
+                      autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
+                      aria-invalid={!!errors.password}
+                      aria-describedby={errors.password ? "password-error" : undefined}
+                      {...register("password")}
                     />
-                    {errors.lastName && (
-                      <p id="last-name-error" className="error-message">
-                        {errors.lastName.message}
+                    {errors.password && (
+                      <p id="password-error" className="error-message">
+                        {errors.password.message}
                       </p>
                     )}
                   </div>
-                </div>
-              )}
-              {mode !== "update-password" && (
-                <div className="field">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="you@example.com"
-                    aria-invalid={!!errors.email}
-                    aria-describedby={errors.email ? "email-error" : undefined}
-                    {...register("email")}
-                  />
-                  {errors.email && (
-                    <p id="email-error" className="error-message">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-              )}
-              {mode !== "forgot-password" && (
-                <div className="field">
-                  <Label htmlFor="password">Hasło</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
-                    aria-invalid={!!errors.password}
-                    aria-describedby={errors.password ? "password-error" : undefined}
-                    {...register("password")}
-                  />
-                  {errors.password && (
-                    <p id="password-error" className="error-message">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
-              )}
-              {mode === "sign-up" && (
-                <div className="field">
-                  <label className="flex items-start gap-[var(--gui-space-xs)] text-sm">
-                    <input
-                      className="mt-0.5 size-4 accent-[var(--gui-color-1)]"
-                      type="checkbox"
-                      aria-invalid={!!errors.privacyAccepted}
-                      aria-describedby={errors.privacyAccepted ? "privacy-error" : undefined}
-                      {...register("privacyAccepted")}
-                    />
-                    <span>
-                      Akceptuję{" "}
-                      <Link className="text-link" href="/polityka-prywatnosci" target="_blank">
-                        politykę prywatności
-                      </Link>
-                      .
-                    </span>
-                  </label>
-                  {errors.privacyAccepted && (
-                    <p id="privacy-error" className="error-message">
-                      {errors.privacyAccepted.message}
-                    </p>
-                  )}
-                </div>
-              )}
-              {errors.root && (
-                <p role="alert" className="error-message">
-                  {errors.root.message}
-                </p>
-              )}
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Chwila…" : copy[mode].action}
-                <ArrowRight size={16} />
-              </Button>
+                )}
+                {mode === "sign-up" && (
+                  <div className="field">
+                    <label className="flex items-start gap-[var(--gui-space-xs)] text-sm">
+                      <input
+                        className="mt-0.5 size-4 accent-[var(--gui-color-1)]"
+                        type="checkbox"
+                        aria-invalid={!!errors.privacyAccepted}
+                        aria-describedby={errors.privacyAccepted ? "privacy-error" : undefined}
+                        {...register("privacyAccepted")}
+                      />
+                      <span>
+                        Akceptuję{" "}
+                        <Link className="text-link" href="/polityka-prywatnosci" target="_blank">
+                          politykę prywatności
+                        </Link>
+                        .
+                      </span>
+                    </label>
+                    {errors.privacyAccepted && (
+                      <p id="privacy-error" className="error-message">
+                        {errors.privacyAccepted.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {errors.root && (
+                  <p role="alert" className="error-message">
+                    {errors.root.message}
+                  </p>
+                )}
+                <Button type="submit" disabled={!hydrated || isSubmitting}>
+                  {isSubmitting ? "Chwila…" : copy[mode].action}
+                  <ArrowRight size={16} />
+                </Button>
+              </fieldset>
             </form>
           )}
           <div className="auth-links">

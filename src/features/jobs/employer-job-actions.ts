@@ -4,13 +4,44 @@ import { revalidatePath } from "next/cache";
 import { requireProfile } from "@/features/auth/session";
 import { employerJobSchema } from "@/features/jobs/employer-job-schema";
 
-export type EmployerJobActionState = { ok: boolean; message: string; jobId?: string };
+export type EmployerJobActionState = {
+  ok: boolean;
+  message: string;
+  jobId?: string;
+  values?: Record<string, string>;
+  field?: string;
+  revision?: number;
+};
 
 export async function createEmployerJob(
-  _previous: EmployerJobActionState,
+  previous: EmployerJobActionState,
   formData: FormData,
 ): Promise<EmployerJobActionState> {
   const { client } = await requireProfile(["employer"]);
+  const fields = [
+    "slug",
+    "title",
+    "summary",
+    "description",
+    "category",
+    "function",
+    "remoteStatus",
+    "locations",
+    "seniority",
+    "contractType",
+    "salaryMin",
+    "salaryMax",
+    "salaryCurrency",
+    "salaryPeriod",
+    "salaryKind",
+    "expiryAt",
+    "sourceBrief",
+    "decisionCriteria",
+  ];
+  const values = Object.fromEntries(
+    fields.map((field) => [field, String(formData.get(field) ?? "")]),
+  );
+  const revision = (previous.revision ?? 0) + 1;
   const parsed = employerJobSchema.safeParse({
     slug: formData.get("slug"),
     title: formData.get("title"),
@@ -32,7 +63,13 @@ export async function createEmployerJob(
     decisionCriteria: formData.get("decisionCriteria") || "",
   });
   if (!parsed.success) {
-    return { ok: false, message: parsed.error.issues[0]?.message ?? "Sprawdź formularz." };
+    return {
+      ok: false,
+      message: parsed.error.issues[0]?.message ?? "Sprawdź formularz.",
+      field: String(parsed.error.issues[0]?.path[0] ?? "title"),
+      values,
+      revision,
+    };
   }
 
   const input = parsed.data;
@@ -62,11 +99,14 @@ export async function createEmployerJob(
   if (error) {
     return {
       ok: false,
+      values,
+      revision,
+      field: error.message.includes("duplicate") ? "slug" : undefined,
       message: error.message.includes("duplicate")
         ? "Ten adres oferty jest już zajęty. Zmień slug."
         : "Nie udało się zapisać oferty.",
     };
   }
   revalidatePath("/app/oferty");
-  return { ok: true, message: "Oferta trafiła do weryfikacji.", jobId: String(data) };
+  return { ok: true, message: "Oferta trafiła do weryfikacji.", jobId: String(data), revision };
 }

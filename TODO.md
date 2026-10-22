@@ -553,6 +553,22 @@ M11-34 requires a real first-time participant. The fresh-account automated journ
 
 ---
 
+## M12 — Native user-flow audit repairs
+
+- [x] **M12-01** Prevent credential GET submissions before hydration and without JavaScript;
+      verify ordinary login/signup, role boundaries and recovery copy.
+- [x] **M12-02** Preserve invalid employer offer inputs and focus field-level errors.
+- [x] **M12-03** Select the linked owned role for brief/generation, fix duplicate IDs,
+      format owner previews and preserve approved human edits.
+- [x] **M12-04** Restore mobile sign-out, scope employer filters and synchronize public
+      controls with URL navigation.
+- [x] **M12-05** Persist candidate item order atomically and include hiring in completed filters.
+- [x] **M12-06** Correct AI provenance, fixture punctuation, recruiting-stage expectations
+      and small CV size formatting without adding outbound messaging.
+- [x] **M12-07** Add regressions, run verification, review and repeat native-browser flows.
+
+Evidence and limitations: [audit repair task](docs/tasks/user-flow-audit-fixes.md).
+
 ## External dependencies and decisions
 
 - [x] **UX-03** Enable immediate candidate registration without signup mail in local

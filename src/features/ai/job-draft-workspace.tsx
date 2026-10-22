@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { approveJobDraft, generateJobDraft, type JobDraftState } from "@/features/ai/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,9 +29,11 @@ function isApprovedDraft(state: JobDraftState): state is ApprovedDraftState {
 export function JobDraftWorkspace({
   jobs,
   allowAi,
+  initialJobId,
 }: {
   jobs: { id: string; title: string }[];
   allowAi: boolean;
+  initialJobId?: string;
 }) {
   const [state, action, pending] = useActionState(generateJobDraft, initialState);
   return (
@@ -62,7 +64,7 @@ export function JobDraftWorkspace({
                 name="jobId"
                 ariaLabel="Oferta do wygenerowania"
                 required
-                defaultValue={jobs[0]?.id}
+                defaultValue={initialJobId ?? jobs[0]?.id}
                 options={jobs.map((job) => ({ value: job.id, label: job.title }))}
               />
             </div>
@@ -97,6 +99,9 @@ export function JobDraftWorkspace({
 
 function ApprovalForm({ state }: { state: ApprovedDraftState }) {
   const [approval, action, pending] = useActionState(approveJobDraft, initialState);
+  const [title, setTitle] = useState(state.title);
+  const [summary, setSummary] = useState(state.summary);
+  const [description, setDescription] = useState(state.description);
   return (
     <form action={action} className="form-stack rounded-xl bg-secondary p-6">
       <input type="hidden" name="jobId" value={state.jobId} />
@@ -104,14 +109,23 @@ function ApprovalForm({ state }: { state: ApprovedDraftState }) {
       <h2>Sprawdź i zatwierdź</h2>
       <div className="field">
         <Label htmlFor="draft-title">Tytuł</Label>
-        <Input id="draft-title" name="title" defaultValue={state.title} required />
+        <Input
+          id="draft-title"
+          name="title"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          readOnly={approval.ok}
+          required
+        />
       </div>
       <div className="field">
         <Label htmlFor="draft-summary">Podsumowanie</Label>
         <Textarea
           id="draft-summary"
           name="summary"
-          defaultValue={state.summary}
+          value={summary}
+          onChange={(event) => setSummary(event.target.value)}
+          readOnly={approval.ok}
           rows={3}
           required
         />
@@ -121,7 +135,9 @@ function ApprovalForm({ state }: { state: ApprovedDraftState }) {
         <Textarea
           id="draft-description"
           name="description"
-          defaultValue={state.description}
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+          readOnly={approval.ok}
           rows={12}
           required
         />
@@ -130,8 +146,8 @@ function ApprovalForm({ state }: { state: ApprovedDraftState }) {
         Zatwierdzenie zapisze nową, prywatną wersję. Nie zmieni opublikowanej oferty — publikacja
         pozostaje osobną decyzją operatora.
       </p>
-      <Button type="submit" disabled={pending}>
-        {pending ? "Zatwierdzam…" : "Zatwierdź wersję"}
+      <Button type="submit" disabled={pending || approval.ok}>
+        {pending ? "Zatwierdzam…" : approval.ok ? "Wersja zapisana" : "Zatwierdź wersję"}
       </Button>
       {approval.message && (
         <p

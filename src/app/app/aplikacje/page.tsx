@@ -18,7 +18,9 @@ const filters = [
   ["in_review", "W przeglądzie"],
   ["interview", "Rozmowy"],
   ["continued", "Kolejny etap"],
-  ["rejected", "Zakończone"],
+  ["completed", "Zakończone"],
+  ["rejected", "Bez zatrudnienia"],
+  ["hired", "Zatrudnienie"],
   ["withdrawn", "Wycofane"],
 ] as const;
 
@@ -37,7 +39,8 @@ export default async function ApplicationsPage({
     )
     .eq("candidate_id", user.id)
     .order("submitted_at", { ascending: false });
-  if (allowedStatus) request = request.eq("status", allowedStatus);
+  if (allowedStatus === "completed") request = request.in("status", ["rejected", "hired"]);
+  else if (allowedStatus) request = request.eq("status", allowedStatus);
   const { data, error } = await request;
   if (error) throw new Error("Nie udało się wczytać aplikacji.");
 

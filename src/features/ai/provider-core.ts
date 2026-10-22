@@ -100,7 +100,7 @@ export function deterministicText(request: AiTextRequest) {
       : sample
         ? `${String(sample.title ?? "Próbka pracy")}: ${String(sample.context ?? "")} ${String(sample.outcome ?? "")}`
         : String(request.source.bio ?? "");
-    return `Jako ${headline} wnoszę do roli ${jobTitle} doświadczenie oparte na konkretnym dowodzie. ${evidence}. Chcę podczas rozmowy pokazać tok decyzji, kompromisy i sposób mierzenia rezultatu, zamiast zastępować je ogólną deklaracją motywacji.`;
+    return `Jako ${headline} wnoszę do roli ${jobTitle} doświadczenie oparte na konkretnym dowodzie. ${evidence.trim().replace(/[.!?]+$/, "")}. Chcę podczas rozmowy pokazać tok decyzji, kompromisy i sposób mierzenia rezultatu, zamiast zastępować je ogólną deklaracją motywacji.`;
   }
   const title = String(request.source.title ?? "Specjalista AI");
   const criteria = Array.isArray(request.source.decisionCriteria)

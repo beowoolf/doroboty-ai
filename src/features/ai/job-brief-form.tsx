@@ -16,12 +16,19 @@ export type JobWithBrief = {
   brief?: { sourceText: string; decisionCriteria: string[] };
 };
 
-export function JobBriefForm({ jobs }: { jobs: JobWithBrief[] }) {
+export function JobBriefForm({
+  jobs,
+  initialJobId,
+}: {
+  jobs: JobWithBrief[];
+  initialJobId?: string;
+}) {
+  const selectedJob = jobs.find((job) => job.id === initialJobId) ?? jobs[0];
   const [state, action, pending] = useActionState(saveJobBrief, initialState);
-  const [selectedId, setSelectedId] = useState(jobs[0]?.id ?? "");
-  const [sourceText, setSourceText] = useState(jobs[0]?.brief?.sourceText ?? "");
+  const [selectedId, setSelectedId] = useState(selectedJob?.id ?? "");
+  const [sourceText, setSourceText] = useState(selectedJob?.brief?.sourceText ?? "");
   const [decisionCriteria, setDecisionCriteria] = useState(
-    jobs[0]?.brief?.decisionCriteria.join("\n") ?? "",
+    selectedJob?.brief?.decisionCriteria.join("\n") ?? "",
   );
 
   function selectJob(jobId: string) {
@@ -59,9 +66,9 @@ export function JobBriefForm({ jobs }: { jobs: JobWithBrief[] }) {
         />
       </div>
       <div className="field">
-        <Label htmlFor="brief-source">Kontekst, potrzeba i oczekiwany rezultat</Label>
+        <Label htmlFor="brief-source-text">Kontekst, potrzeba i oczekiwany rezultat</Label>
         <Textarea
-          id="brief-source"
+          id="brief-source-text"
           name="sourceText"
           value={sourceText}
           onChange={(event) => setSourceText(event.target.value)}

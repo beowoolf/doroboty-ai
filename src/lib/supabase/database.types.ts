@@ -1,6 +1,26 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: { extensions?: Json; operationName?: string; query?: string; variables?: Json };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
   public: {
     Tables: {
       account_deletion_requests: {
@@ -11,6 +31,7 @@ export type Database = {
           status: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           cancelled_at?: string | null;
           id?: string;
@@ -55,6 +76,7 @@ export type Database = {
           source_payload: NonNullable<Json>;
           status: Database["public"]["Enums"]["ai_generation_status"];
         };
+        ComputedFields: never;
         Insert: {
           application_id?: string | null;
           created_at?: string;
@@ -136,6 +158,7 @@ export type Database = {
           source_evidence_ids: string[];
           version: number;
         };
+        ComputedFields: never;
         Insert: {
           answer: string;
           application_id: string;
@@ -195,6 +218,7 @@ export type Database = {
           selected_work_sample_ids: string[];
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           ai_generation_id?: string | null;
           answer?: string;
@@ -252,6 +276,7 @@ export type Database = {
           occurred_at: string;
           stage: Database["public"]["Enums"]["application_stage"];
         };
+        ComputedFields: never;
         Insert: {
           actor_id: string;
           application_id: string;
@@ -306,6 +331,7 @@ export type Database = {
           updated_at: string;
           variant: Database["public"]["Enums"]["application_variant"];
         };
+        ComputedFields: never;
         Insert: {
           answer: string;
           answer_generation_id?: string | null;
@@ -372,6 +398,7 @@ export type Database = {
           uploaded_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           file_name: string;
           mime_type: string;
@@ -412,6 +439,7 @@ export type Database = {
           updated_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           company_name: string;
           created_at?: string;
@@ -467,6 +495,7 @@ export type Database = {
           updated_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           bio?: string | null;
           city?: string | null;
@@ -525,6 +554,7 @@ export type Database = {
           url: string | null;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           context: string;
           created_at?: string;
@@ -568,6 +598,7 @@ export type Database = {
           title: string;
           visible_to_participants: boolean;
         };
+        ComputedFields: never;
         Insert: {
           content: NonNullable<Json>;
           created_at?: string;
@@ -608,6 +639,7 @@ export type Database = {
           title: string;
           unlocked: boolean;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           key: Database["public"]["Enums"]["case_release_key"];
@@ -642,6 +674,7 @@ export type Database = {
           updated_at: string;
           website_url: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           description: string;
@@ -680,6 +713,7 @@ export type Database = {
           title: string;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           company_id: string;
           created_at?: string;
@@ -717,6 +751,7 @@ export type Database = {
           surface: Database["public"]["Enums"]["experiment_surface"];
           variant: string;
         };
+        ComputedFields: never;
         Insert: {
           assigned_at?: string;
           id?: string;
@@ -750,6 +785,7 @@ export type Database = {
           exposed_at: string;
           id: string;
         };
+        ComputedFields: never;
         Insert: {
           application_id?: string | null;
           assignment_id: string;
@@ -797,6 +833,7 @@ export type Database = {
           score: number;
           version: string;
         };
+        ComputedFields: never;
         Insert: {
           application_id: string;
           calculated_at?: string;
@@ -846,6 +883,7 @@ export type Database = {
           recorded_by: string;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           application_id: string;
           created_at?: string;
@@ -906,6 +944,7 @@ export type Database = {
           version: number;
           visibility: Database["public"]["Enums"]["text_visibility"];
         };
+        ComputedFields: never;
         Insert: {
           approved_at?: string | null;
           created_at?: string;
@@ -978,6 +1017,7 @@ export type Database = {
           updated_at: string;
           verification_status: Database["public"]["Enums"]["verification_status"];
         };
+        ComputedFields: never;
         Insert: {
           category: Database["public"]["Enums"]["job_category"];
           company_id: string;
@@ -1058,6 +1098,7 @@ export type Database = {
           role: Database["public"]["Enums"]["membership_role"];
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           organization_id: string;
@@ -1088,6 +1129,7 @@ export type Database = {
           name: string;
           slug: string;
         };
+        ComputedFields: never;
         Insert: {
           company_id: string;
           created_at?: string;
@@ -1122,6 +1164,7 @@ export type Database = {
           role: Database["public"]["Enums"]["profile_role"];
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           display_name?: string | null;
@@ -1148,6 +1191,7 @@ export type Database = {
           job_id: string;
           saved_at: string;
         };
+        ComputedFields: never;
         Insert: {
           candidate_id: string;
           job_id: string;
@@ -1191,6 +1235,7 @@ export type Database = {
           text_fit_score: number | null;
           variant: Database["public"]["Enums"]["application_variant"] | null;
         };
+        ComputedFields: never;
         Relationships: [
           {
             foreignKeyName: "applications_job_id_fkey";
@@ -1311,6 +1356,10 @@ export type Database = {
       };
       is_operator: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_organization_member: { Args: { target_organization_id: string }; Returns: boolean };
+      move_candidate_item: {
+        Args: { direction: string; item_kind: string; target_id: string };
+        Returns: undefined;
+      };
       record_application_stage: {
         Args: {
           event_note?: string;
@@ -1494,6 +1543,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       ai_generation_purpose: ["job_draft", "candidate_answer"],

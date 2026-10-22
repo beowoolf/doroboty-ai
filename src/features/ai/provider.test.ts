@@ -28,6 +28,7 @@ describe("deterministic AI provider", () => {
       },
     });
     expect(text).toContain("Skróciłem proces o 20%");
+    expect(text).not.toContain("..");
   });
 
   it("enforces the per-subject hourly quota", async () => {

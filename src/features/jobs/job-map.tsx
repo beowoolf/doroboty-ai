@@ -6,6 +6,7 @@ import { ArrowRight, MapPin } from "lucide-react";
 import * as maplibregl from "maplibre-gl";
 import type { JobWithCompany } from "@/features/jobs/types";
 import { formatSalary } from "@/features/jobs/presentation";
+import { groupJobsByCoordinates, jobCountLabel } from "@/features/jobs/map-groups";
 
 maplibregl.setWorkerUrl(
   new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).toString(),
@@ -36,41 +37,62 @@ export function JobMap({ jobs }: { jobs: JobWithCompany[] }) {
     );
 
     const bounds = new maplibregl.LngLatBounds();
-    for (const job of jobs) {
+    for (const group of groupJobsByCoordinates(jobs)) {
+      const job = group[0];
       if (!job.coordinates) continue;
       const marker = document.createElement("button");
       marker.type = "button";
       marker.className = "job-map-marker";
-      marker.setAttribute("aria-label", `${job.title}, ${job.company.name}`);
+      marker.setAttribute(
+        "aria-label",
+        group.length > 1
+          ? `${jobCountLabel(group.length)} · ${job.locations.join(" / ")}`
+          : `${job.title}, ${job.company.name}`,
+      );
       const markerLabel = document.createElement("span");
-      markerLabel.textContent = job.company.name
-        .split(/\s+/)
-        .map((word) => word[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase();
+      markerLabel.textContent =
+        group.length > 1
+          ? String(group.length)
+          : job.company.name
+              .split(/\s+/)
+              .map((word) => word[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase();
       marker.append(markerLabel);
 
       const popupContent = document.createElement("div");
       popupContent.className = "job-map-popup";
-      const company = document.createElement("span");
-      company.textContent = job.company.name;
-      const title = document.createElement("a");
-      title.className = "job-map-popup-title";
-      title.href = `/oferty/${job.slug}`;
-      title.textContent = job.title;
-      const location = document.createElement("span");
-      location.textContent = job.locations.join(" / ");
-      const link = document.createElement("a");
-      link.className = "job-map-popup-link";
-      link.href = `/oferty/${job.slug}`;
-      link.textContent = "Zobacz rolę →";
-      popupContent.append(company, title, location, link);
+      popupContent.style.maxHeight = "280px";
+      popupContent.style.overflowY = "auto";
+      for (const job of group) {
+        const company = document.createElement("span");
+        company.textContent = job.company.name;
+        const title = document.createElement("a");
+        title.className = "job-map-popup-title";
+        title.href = `/oferty/${job.slug}`;
+        title.textContent = job.title;
+        const location = document.createElement("span");
+        location.textContent = job.locations.join(" / ");
+        const link = document.createElement("a");
+        link.className = "job-map-popup-link";
+        link.href = `/oferty/${job.slug}`;
+        link.textContent = "Zobacz rolę →";
+        popupContent.append(company, title, location, link);
+      }
 
-      new maplibregl.Marker({ element: marker, anchor: "bottom" })
+      const mapMarker = new maplibregl.Marker({ element: marker, anchor: "bottom" })
         .setLngLat([job.coordinates.longitude, job.coordinates.latitude])
         .setPopup(new maplibregl.Popup({ offset: 18 }).setDOMContent(popupContent))
         .addTo(map);
+      // MapLibre handles keypress while a native button also synthesizes click.
+      // Own keydown to prevent an immediate open-and-close double activation.
+      marker.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          mapMarker.togglePopup();
+        }
+      });
       bounds.extend([job.coordinates.longitude, job.coordinates.latitude]);
     }
     if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 72, maxZoom: 8, duration: 0 });

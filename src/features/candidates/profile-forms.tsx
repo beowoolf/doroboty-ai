@@ -40,8 +40,10 @@ export function CandidateCvForm({
         <div className="mt-[var(--gui-space-m)] rounded-lg bg-muted/50 p-[var(--gui-space-m)]">
           <strong className="block font-ui text-sm">{document.fileName}</strong>
           <span className="mt-[var(--gui-space-xxs)] block text-xs text-muted-foreground">
-            {(document.sizeBytes / 1024 / 1024).toFixed(2)} MB · dodano{" "}
-            {new Intl.DateTimeFormat("pl-PL").format(new Date(document.uploadedAt))}
+            {document.sizeBytes < 1024 * 1024
+              ? `${Math.max(1, Math.ceil(document.sizeBytes / 1024))} KB`
+              : `${(document.sizeBytes / 1024 / 1024).toFixed(2)} MB`}{" "}
+            · dodano {new Intl.DateTimeFormat("pl-PL").format(new Date(document.uploadedAt))}
           </span>
           <div className="mt-[var(--gui-space-s)] flex flex-wrap gap-[var(--gui-space-s)]">
             {document.downloadUrl ? (
@@ -352,24 +354,38 @@ export function CandidateItemActions({
   first: boolean;
   last: boolean;
 }) {
+  const [state, moveAction, pending] = useActionState(moveCandidateItem, initialState);
   return (
     <div className="flex flex-wrap gap-[var(--gui-space-xs)]">
-      <form action={moveCandidateItem}>
+      <form action={moveAction}>
         <input type="hidden" name="id" value={id} />
         <input type="hidden" name="kind" value={kind} />
         <input type="hidden" name="direction" value="up" />
-        <Button variant="outline" size="icon-sm" disabled={first} aria-label="Przenieś wyżej">
+        <Button
+          type="submit"
+          variant="outline"
+          size="icon-sm"
+          disabled={first || pending}
+          aria-label="Przenieś wyżej"
+        >
           <ArrowUp />
         </Button>
       </form>
-      <form action={moveCandidateItem}>
+      <form action={moveAction}>
         <input type="hidden" name="id" value={id} />
         <input type="hidden" name="kind" value={kind} />
         <input type="hidden" name="direction" value="down" />
-        <Button variant="outline" size="icon-sm" disabled={last} aria-label="Przenieś niżej">
+        <Button
+          type="submit"
+          variant="outline"
+          size="icon-sm"
+          disabled={last || pending}
+          aria-label="Przenieś niżej"
+        >
           <ArrowDown />
         </Button>
       </form>
+      <ActionMessage state={state} />
       <form
         action={deleteCandidateItem}
         onSubmit={(event) => {
@@ -380,7 +396,7 @@ export function CandidateItemActions({
       >
         <input type="hidden" name="id" value={id} />
         <input type="hidden" name="kind" value={kind} />
-        <Button variant="ghost" size="icon-sm" aria-label="Usuń">
+        <Button type="submit" variant="ghost" size="icon-sm" aria-label="Usuń">
           <Trash2 />
         </Button>
       </form>

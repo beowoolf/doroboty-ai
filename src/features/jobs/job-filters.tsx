@@ -30,7 +30,11 @@ const filterIcons = {
 
 export function JobFiltersForm({ filters, view }: { filters: JobFilters; view?: "list" | "map" }) {
   return (
-    <form className="pb-6 shadow-[var(--gui-divider-bottom-shadow)]" action="/oferty">
+    <form
+      key={JSON.stringify([filters, view])}
+      className="pb-6 shadow-[var(--gui-divider-bottom-shadow)]"
+      action="/oferty"
+    >
       {view === "map" ? <input type="hidden" name="view" value="map" /> : null}
       <div className="flex rounded-lg bg-background p-1 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--gui-focus)]">
         <label className="relative min-w-0 flex-1">

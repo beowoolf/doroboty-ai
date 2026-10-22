@@ -11,7 +11,11 @@ import { publicationStatusLabel } from "@/features/jobs/presentation";
 
 export const dynamic = "force-dynamic";
 
-export default async function EmployerJobsPage() {
+export default async function EmployerJobsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ job?: string }>;
+}) {
   if (!getSupabaseConfig().configured) return null;
   const { client, user, profile } = await requireProfile(["employer", "operator"]);
   let companyIds: string[] | null = null;
@@ -57,6 +61,9 @@ export default async function EmployerJobsPage() {
         : undefined,
     };
   });
+  const requestedJob = (await searchParams).job;
+  const selectedJobId =
+    jobsWithBrief.find((job) => job.id === requestedJob)?.id ?? jobsWithBrief[0]?.id;
 
   return (
     <div>
@@ -95,9 +102,14 @@ export default async function EmployerJobsPage() {
           <ExperimentExposure assignmentId={treatment.id} />
         )}
         <div id="brief-source" className="mb-6 scroll-mt-6">
-          <JobBriefForm jobs={jobsWithBrief} />
+          <JobBriefForm key={selectedJobId} jobs={jobsWithBrief} initialJobId={selectedJobId} />
         </div>
-        <JobDraftWorkspace jobs={jobsWithBrief} allowAi={allowAi} />
+        <JobDraftWorkspace
+          key={selectedJobId}
+          jobs={jobsWithBrief}
+          initialJobId={selectedJobId}
+          allowAi={allowAi}
+        />
       </div>
     </div>
   );

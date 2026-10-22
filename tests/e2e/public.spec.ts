@@ -53,6 +53,18 @@ test("public pages remain within a mobile viewport", async ({ page }) => {
   }
 });
 
+test("filter controls follow clear and browser history", async ({ page }) => {
+  await page.goto("/oferty?category=build");
+  await expect(page.getByRole("combobox", { name: "Kategoria" })).toContainText("Build");
+  await page.getByRole("link", { name: "Wyczyść", exact: true }).click();
+  await expect(page).toHaveURL(/\/oferty$/);
+  await expect(page.getByRole("combobox", { name: "Kategoria" })).toContainText("Wszystkie");
+  await page.goBack();
+  await expect(page.getByRole("combobox", { name: "Kategoria" })).toContainText("Build");
+  await page.goForward();
+  await expect(page.getByRole("combobox", { name: "Kategoria" })).toContainText("Wszystkie");
+});
+
 test("job map keeps an accessible result list", async ({ page }) => {
   const workerErrors: string[] = [];
   page.on("console", (message) => {
@@ -77,6 +89,15 @@ test("job map keeps an accessible result list", async ({ page }) => {
     "/oferty/ai-product-manager",
   );
   expect(workerErrors).toEqual([]);
+  await page
+    .getByRole("button", { name: "AI Product Manager, BrightLabs", exact: true })
+    .press("Enter");
+  await expect(page.locator(".job-map-popup-title")).toHaveText("AI Product Manager");
+  await page.getByRole("button", { name: "Close popup", exact: true }).click();
+  await page
+    .getByRole("button", { name: "AI Product Manager, BrightLabs", exact: true })
+    .press("Space");
+  await expect(page.locator(".job-map-popup-title")).toHaveText("AI Product Manager");
 });
 
 test("job filters keep a balanced grid at medium desktop widths", async ({ page }) => {

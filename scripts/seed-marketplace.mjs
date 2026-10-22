@@ -3,19 +3,27 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
-const config = readFileSync(resolve(root, "supabase/config.toml"), "utf8");
+const workdir = process.env.LOCAL_SUPABASE_WORKDIR
+  ? resolve(process.env.LOCAL_SUPABASE_WORKDIR)
+  : root;
+const config = readFileSync(resolve(workdir, "supabase/config.toml"), "utf8");
 const project = config.match(/^project_id\s*=\s*"([a-zA-Z0-9_-]+)"/m)?.[1];
 if (!project) throw new Error("Unable to resolve the local Supabase project.");
 let database;
 try {
   const status = JSON.parse(
-    execFileSync("npx", ["supabase", "status", "-o", "json"], {
+    execFileSync("npx", ["supabase", "status", "--workdir", workdir, "-o", "json"], {
       cwd: root,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
     }),
   );
   database = new URL(status.DB_URL);
+  if (
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_URL !== status.API_URL
+  )
+    throw new Error("Fixture database differs from the application test target.");
 } catch {
   // CLI errors can contain credential-bearing status output. Do not surface them.
   throw new Error("Unable to read local Supabase status. Start the local database first.");

@@ -14,6 +14,7 @@ import {
 } from "@/features/jobs/presentation";
 import { getSupabaseConfig } from "@/lib/env";
 import { cn } from "@/lib/utils";
+import { JobDescription } from "@/features/jobs/job-description";
 
 export const dynamic = "force-dynamic";
 
@@ -23,16 +24,37 @@ export default async function EmployerJobDetailPage({
   params: Promise<{ id: string }>;
 }) {
   if (!getSupabaseConfig().configured) return null;
-  const { client } = await requireProfile(["employer", "operator"]);
+  const { client, user, profile } = await requireProfile(["employer", "operator"]);
   const { id } = await params;
   const { data: job, error } = await client
     .from("jobs")
     .select(
-      "id, slug, title, summary, description, category, function, remote_status, locations, seniority, contract_type, publication_status, verification_status, updated_at, brief:employer_briefs(source_text, decision_criteria)",
+      "id, company_id, slug, title, summary, description, category, function, remote_status, locations, seniority, contract_type, publication_status, verification_status, updated_at, brief:employer_briefs(source_text, decision_criteria)",
     )
     .eq("id", id)
     .maybeSingle();
   if (error || !job) notFound();
+  if (profile.role === "employer") {
+    const { data: memberships, error: membershipError } = await client
+      .from("organization_memberships")
+      .select("organization:organizations(company_id)")
+      .eq("user_id", user.id);
+    if (membershipError) throw new Error("Nie udało się sprawdzić organizacji.");
+    const ownsJob = (memberships ?? []).some((membership) => {
+      const organization = Array.isArray(membership.organization)
+        ? membership.organization[0]
+        : membership.organization;
+      return organization?.company_id === job.company_id;
+    });
+    if (!ownsJob) notFound();
+  }
+  const { data: versions, error: versionsError } = await client
+    .from("job_text_versions")
+    .select("id, version, title, summary, description, visibility, approved_at")
+    .eq("job_id", job.id)
+    .not("approved_at", "is", null)
+    .order("version", { ascending: false });
+  if (versionsError) throw new Error("Nie udało się wczytać zapisanych wersji.");
   const brief = Array.isArray(job.brief) ? job.brief[0] : job.brief;
 
   return (
@@ -66,10 +88,37 @@ export default async function EmployerJobDetailPage({
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.7fr)]">
-        <section className="rounded-xl bg-card p-6 shadow-[var(--gui-shadow-m)]">
-          <h2>Treść oferty</h2>
-          <p className="mt-4 whitespace-pre-wrap leading-relaxed">{job.description}</p>
-        </section>
+        <div className="grid h-fit gap-6">
+          <section className="rounded-xl bg-card p-6 shadow-[var(--gui-shadow-m)]">
+            <h2>Treść oferty</h2>
+            <div className="mt-4">
+              <JobDescription description={job.description} />
+            </div>
+          </section>
+          <section className="rounded-xl bg-card p-6 shadow-[var(--gui-shadow-m)]">
+            <h2>Zapisane wersje</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Zatwierdzenie zapisuje wersję prywatną. Publikacja jest osobnym krokiem operatora; do
+              tego czasu publiczna treść pozostaje bez zmian.
+            </p>
+            {versions?.length ? (
+              versions.map((version) => (
+                <details key={version.id} className="mt-4 rounded-lg bg-secondary p-4">
+                  <summary className="cursor-pointer font-ui text-sm font-semibold">
+                    Wersja {version.version} ·{" "}
+                    {version.visibility === "private" ? "Prywatna" : "Publiczna"} · {version.title}
+                  </summary>
+                  <p className="my-4">{version.summary}</p>
+                  <JobDescription description={version.description} />
+                </details>
+              ))
+            ) : (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Nie ma jeszcze zatwierdzonych wersji.
+              </p>
+            )}
+          </section>
+        </div>
         <aside aria-label="Ustawienia i brief oferty" className="grid h-fit gap-6">
           <section className="rounded-xl bg-card p-5">
             <h2 className="text-xl">Ustawienia</h2>
@@ -123,7 +172,7 @@ export default async function EmployerJobDetailPage({
             )}
             <Link
               className={cn("mt-4", buttonVariants({ variant: "outline", size: "sm" }))}
-              href="/app/oferty#brief-source"
+              href={`/app/oferty?job=${job.id}#brief-source`}
             >
               {brief ? "Edytuj brief" : "Dodaj brief"}
             </Link>

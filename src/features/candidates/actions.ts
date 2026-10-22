@@ -175,33 +175,26 @@ export async function deleteCandidateItem(formData: FormData) {
   });
 }
 
-export async function moveCandidateItem(formData: FormData) {
-  const { client, user } = await requireProfile(["candidate"]);
+export async function moveCandidateItem(
+  _previous: CandidateActionState,
+  formData: FormData,
+): Promise<CandidateActionState> {
+  const { client } = await requireProfile(["candidate"]);
   const parsed = candidateItemActionSchema.safeParse({
     id: formData.get("id"),
     kind: formData.get("kind"),
     direction: formData.get("direction"),
   });
-  if (!parsed.success || !parsed.data.direction) return;
-  const table =
-    parsed.data.kind === "experience" ? "candidate_experiences" : "candidate_work_samples";
-  const { data } = await client
-    .from(table)
-    .select("id, sort_order, created_at")
-    .eq("user_id", user.id)
-    .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: false });
-  const items = data ?? [];
-  const index = items.findIndex((item) => item.id === parsed.data.id);
-  const target = parsed.data.direction === "up" ? index - 1 : index + 1;
-  if (index < 0 || target < 0 || target >= items.length) return;
-  [items[index], items[target]] = [items[target], items[index]];
-  await Promise.all(
-    items.map((item, order) =>
-      client.from(table).update({ sort_order: order }).eq("id", item.id).eq("user_id", user.id),
-    ),
-  );
+  if (!parsed.success || !parsed.data.direction)
+    return { ok: false, message: "Nieprawidłowa zmiana kolejności." };
+  const { error } = await client.rpc("move_candidate_item", {
+    target_id: parsed.data.id,
+    item_kind: parsed.data.kind,
+    direction: parsed.data.direction,
+  });
+  if (error) return { ok: false, message: "Nie udało się zmienić kolejności. Spróbuj ponownie." };
   revalidatePath("/app/profil");
+  return { ok: true, message: "Kolejność zapisana." };
 }
 
 export async function uploadCandidateCv(

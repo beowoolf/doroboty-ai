@@ -857,7 +857,7 @@ test("candidate application and employer first-conversation decision work end to
   await expect(application.locator("[data-match-score-value]")).toHaveText(savedScore);
   await application.getByRole("button", { name: "Oznacz jako przejrzaną" }).click();
   await expect(application.getByText("W przeglądzie", { exact: true })).toBeVisible();
-  await application.getByRole("button", { name: "Zaproś na rozmowę" }).click();
+  await application.getByRole("button", { name: "Oznacz zaproszenie na rozmowę" }).click();
   await application.getByRole("button", { name: "Potwierdź odbytą rozmowę" }).click();
   await application.getByRole("button", { name: "Przenieś do kolejnego etapu" }).click();
   await expect(application.getByText("Kolejny etap", { exact: true })).toBeVisible();
@@ -1028,6 +1028,10 @@ test("candidate and employer AI drafts require approval and preserve public sour
   await page.getByLabel("Tytuł", { exact: true }).fill("AI Product Manager — wersja prywatna");
   await page.getByRole("button", { name: "Zatwierdź wersję" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Zatwierdzono wersję" })).toBeVisible();
+  await expect(page.getByLabel("Tytuł", { exact: true })).toHaveValue(
+    "AI Product Manager — wersja prywatna",
+  );
+  await expect(page.getByRole("button", { name: "Wersja zapisana", exact: true })).toBeDisabled();
   const publicJobAfterApproval = await employer
     .from("jobs")
     .select("title")
@@ -1041,6 +1045,10 @@ test("candidate and employer AI drafts require approval and preserve public sour
     .eq("title", "AI Product Manager — wersja prywatna")
     .single();
   expect(privateVersion.data?.visibility).toBe("private");
+  await page.goto("/app/oferty/20000000-0000-4000-8000-000000000001");
+  await expect(
+    page.locator("summary").filter({ hasText: "AI Product Manager — wersja prywatna" }),
+  ).toBeVisible();
 });
 
 test("candidate-critical screens reflow in both themes and expose accessible controls", async ({
@@ -1181,7 +1189,7 @@ test("optional marketplace volume preserves data and supports candidate applicat
 
   const noJs = await page.context().browser()!.newContext({ javaScriptEnabled: false });
   const nativePage = await noJs.newPage();
-  await nativePage.goto("http://127.0.0.1:3107/oferty?function=engineering");
+  await nativePage.goto(new URL("/oferty?function=engineering", page.url()).href);
   await nativePage.getByRole("link", { name: "Następna", exact: true }).click();
   await expect(nativePage).toHaveURL(/function=engineering&page=2$/);
   await expect(nativePage.getByRole("article")).toHaveCount(1);

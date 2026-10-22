@@ -615,9 +615,15 @@ code {
     box-shadow: var(--gui-divider-bottom-shadow);
   }
   .sidebar .brand,
-  .sidebar .workspace-label,
-  .sidebar .sidebar-bottom {
+  .sidebar .workspace-label {
     display: none;
+  }
+  .sidebar-open {
+    max-height: calc(100dvh - 68px);
+    overflow-y: auto;
+  }
+  .sidebar .sidebar-bottom {
+    margin-top: 16px;
   }
   .workspace {
     margin-left: 0;

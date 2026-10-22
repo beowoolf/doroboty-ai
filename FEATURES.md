@@ -2,7 +2,7 @@
 
 This is the register of **current application behavior**, not a roadmap or a promise
 that a feature has been deployed. It covers the AIPH3 case application in this repository,
-not the separate public production portal. Last source review: 2026-10-11.
+not the separate public production portal. Last source review: 2026-10-22.
 
 Read [BRIEF.md](BRIEF.md) for intent, [TODO.md](TODO.md) for outstanding work, and
 [CASE_PROTOCOL.md](docs/case/CASE_PROTOCOL.md) for the teaching contract. When these
@@ -176,6 +176,49 @@ Evidence: [organization features](src/features/organizations/),
 [stage actions](src/features/applications/actions.ts).
 Coverage: employer schema tests and integration tests for organization creation,
 review-role creation, private briefs, candidate/CV access and recruiting outcomes.
+
+### Native-audit behavior corrections (2026-10-22)
+
+- **AUTH-01/02/05:** credential forms explicitly POST to a fail-closed endpoint and
+  remain disabled until their client handler is hydrated. Without working JavaScript,
+  they explain recovery rather than putting credentials into a GET URL. The fallback
+  ignores the body, returns an uncached 503 and does not echo credentials. Registration
+  remains immediate with no signup mail; ordinary recovery still uses Supabase email.
+  Login failures no longer suggest email activation; back-to-offers targets `/oferty`.
+- **AUTH-06 / SYS-01:** mobile workspace navigation exposes the same account identity
+  and sign-out as desktop, with a scrollable menu at small heights.
+- **PUB-03:** filter controls remount from validated URL state on clear, history and
+  view changes. **PUB-05:** exact coincident coordinates share a count marker and a
+  scrollable popup containing every role; missing coordinates still use the list.
+  Enter/Space activation is application-owned to avoid MapLibre/native-button double toggles.
+  Nearby distinct coordinates are not spatially clustered; zoom/list access remains available.
+- **CAN-04:** new profile items append in order. A candidate-authorized, RLS-preserving
+  RPC moves and normalizes owned items in one transaction; profile move buttons submit
+  explicitly and show pending/result states. Existing tied orders are normalized without
+  deleting data. Hidden work-sample support uses the same mechanism but stays hidden.
+- **CAN-06/12/14/15:** small CVs display KB; AI provenance says assisted text without
+  assuming human edits; Completed includes hired and rejected, with separate filters.
+  Recruitment copy describes recorded stages and external contact, not outbound messages.
+- **EMP-03:** salary, duplicate-slug and other save errors retain all authored values
+  and selected taxonomy, mark/focus an identified invalid field and support a corrected retry.
+- **EMP-04/05:** owner details require company membership even for public jobs, render
+  the same safe description syntax as public pages and expose approved version previews.
+  Brief links carry a validated owned job ID into editing and generation; anchor and field
+  IDs are distinct. An invalid/foreign selection cannot load a private brief.
+- **EMP-06:** approval preserves edited text on both errors and success, locks the saved
+  result, and does not publish it. Approved versions can be reopened from owner detail.
+- **EMP-07/09:** role filters contain organization-owned jobs (all authorized roles for
+  operators) and disambiguate titles with slugs. Invitation controls explicitly record
+  a stage; they do not deliver mail or schedule interviews.
+- **SYS-07:** fixture tooling accepts `LOCAL_SUPABASE_WORKDIR` for isolated test stacks,
+  validates the local container/port and rejects a mismatched configured application URL.
+
+Regression sources: [audit fixes](tests/integration/audit-fixes.spec.ts),
+[auth journeys](tests/integration/auth.spec.ts), [public navigation](tests/e2e/public.spec.ts),
+[map grouping](src/features/jobs/map-groups.test.ts), and
+[order migration](supabase/migrations/20261022150000_candidate_item_order.sql).
+Actual local verification and limits: [repair task](docs/tasks/user-flow-audit-fixes.md).
+This entry does not claim production deployment, full legal readiness or a new ATS/publishing UI.
 
 ## Case operations, experiments and AI infrastructure
 

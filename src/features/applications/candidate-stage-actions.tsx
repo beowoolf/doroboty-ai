@@ -28,7 +28,11 @@ function nextAction(status: string, lastStage?: string) {
     return { stage: "reviewed" as Stage, label: "Oznacz jako przejrzaną", icon: Eye };
   }
   if (status === "in_review") {
-    return { stage: "interview_invited" as Stage, label: "Zaproś na rozmowę", icon: CalendarPlus };
+    return {
+      stage: "interview_invited" as Stage,
+      label: "Oznacz zaproszenie na rozmowę",
+      icon: CalendarPlus,
+    };
   }
   if (status === "interview" && lastStage !== "first_conversation_held") {
     return {
@@ -62,6 +66,10 @@ export function CandidateStageActions({
   return (
     <form action={action} className="mt-6 grid gap-4 pt-5 shadow-[var(--gui-divider-top-shadow)]">
       <input type="hidden" name="applicationId" value={applicationId} />
+      <p className="text-sm text-muted-foreground">
+        Zapisujesz etap procesu. Panel nie wysyła wiadomości ani zaproszeń — skontaktuj się z
+        kandydatem poza aplikacją.
+      </p>
       <div className="field">
         <Label htmlFor={`note-${applicationId}`}>Notatka do zmiany etapu (opcjonalnie)</Label>
         <Input

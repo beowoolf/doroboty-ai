@@ -325,7 +325,7 @@ export function ApplicationForm({
           </div>
           <div className="flex justify-between gap-[var(--gui-space-m)]">
             <dt>Źródło tekstu</dt>
-            <dd>{generationId ? "Szkic AI po Twojej edycji" : "Tekst własny"}</dd>
+            <dd>{generationId ? "Tekst przygotowany z pomocą AI" : "Tekst własny"}</dd>
           </div>
         </dl>
         <details className="mt-[var(--gui-space-m)] rounded-lg bg-secondary p-[var(--gui-space-m)]">

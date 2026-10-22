@@ -293,5 +293,5 @@ export async function approveJobDraft(
     properties: { jobId: parsed.data.jobId, purpose: "job_draft" },
   });
   revalidatePath("/app/oferty");
-  return { ok: true, message: `Zatwierdzono wersję ${data}.` };
+  return { ok: true, message: `Zatwierdzono wersję ${data}.`, ...parsed.data };
 }
