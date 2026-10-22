@@ -45,6 +45,22 @@ now opens Enter/Space popups once, covered by public browser tests.
 
 ## Verification and review
 
+### Release gate follow-up
+
+The user authorized push, PR, merge and production deployment. PR #5 CI exposed the
+pre-existing listing Lighthouse regression (88 versus the required 90), also reproduced
+locally at 86. A diagnostic found the roughly 1 MB uncompressed MapLibre module loaded
+on list-only visits. Defer the library itself until the map mounts, retain server-rendered
+role links and map behavior, guard asynchronous teardown and repeat the unchanged gates
+before merging. This is a release performance repair, not a Graphical redesign or lowered threshold.
+
+The follow-up passed `./scripts/verify`, 21 public/demo browser tests (including a list-only
+JavaScript bundle budget and map keyboard interaction), and the unchanged three-sample
+Lighthouse gate: Performance 92/90/92, Accessibility 96/95/100, Best Practices and SEO 100
+for home/listing/role respectively. Separate review checked cancellation before library
+resolution, idempotent cleanup, safe fallback text, retained SSR links, unchanged map
+interactions and no token/dependency/lockfile changes. CI must still pass before merge.
+
 - `./scripts/verify`: passed (lint, 71 unit tests, production build/type validation).
 - Public/demo E2E: 20 passed, including keyboard map popups, no-JS browsing, URL history,
   responsive layouts and automated WCAG A/AA checks on selected screens.

@@ -192,6 +192,8 @@ review-role creation, private briefs, candidate/CV access and recruiting outcome
   scrollable popup containing every role; missing coordinates still use the list.
   Enter/Space activation is application-owned to avoid MapLibre/native-button double toggles.
   Nearby distinct coordinates are not spatially clustered; zoom/list access remains available.
+  The rendering library loads only when the map mounts, not on list-only visits;
+  failed library initialization leaves the linked list available with a recovery notice.
 - **CAN-04:** new profile items append in order. A candidate-authorized, RLS-preserving
   RPC moves and normalizes owned items in one transaction; profile move buttons submit
   explicitly and show pending/result states. Existing tied orders are normalized without

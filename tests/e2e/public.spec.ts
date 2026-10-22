@@ -100,6 +100,26 @@ test("job map keeps an accessible result list", async ({ page }) => {
   await expect(page.locator(".job-map-popup-title")).toHaveText("AI Product Manager");
 });
 
+test("list-only visits do not download the large map rendering bundle", async ({ page }) => {
+  const scripts: Promise<number>[] = [];
+  page.on("response", (response) => {
+    if (response.url().includes("/_next/static/") && response.url().endsWith(".js"))
+      scripts.push(
+        response
+          .body()
+          .then((body) => body.byteLength)
+          .catch(() => 0),
+      );
+  });
+  await page.goto("/oferty");
+  await page.getByRole("combobox", { name: "Kategoria" }).click();
+  await expect(page.getByRole("option", { name: "Build", exact: true })).toBeVisible();
+  const sizes = await Promise.all(scripts);
+  expect(sizes.length).toBeGreaterThan(0);
+  // MapLibre is about 1 MB; the other shared production chunks stay below this budget.
+  expect(Math.max(...sizes)).toBeLessThan(500_000);
+});
+
 test("job filters keep a balanced grid at medium desktop widths", async ({ page }) => {
   await page.setViewportSize({ width: 1166, height: 800 });
   await page.goto("/oferty?view=map");
