@@ -226,24 +226,62 @@ export function initialState(): State {
     drafts: [],
   });
   const bob = state.people.find((x) => x.id === "candidate-marek")!;
+  const anna = state.people.find((x) => x.id === "candidate-anna")!;
+  const piotr = state.people.find((x) => x.id === "candidate-piotr")!;
   const job = state.jobs[0];
-  state.applications.push({
-    id: "application-example",
-    candidateId: bob.id,
-    jobId: job.id,
-    companyId: job.companyId,
-    jobTitle: job.title,
-    candidateName: bob.name,
-    cv: bob.cv,
-    answer:
-      "Pracowałem nad automatyzacją obsługi zgłoszeń. Poprowadziłem badania z użytkownikami i wdrożenie, które skróciło czas odpowiedzi o 25%. Chętnie opowiem o decyzjach i ograniczeniach tego projektu.",
-    sourceNotes: "",
-    generatedAnswer: "",
-    score: bob.exampleScore,
-    summary: bob.exampleSummary,
-    stage: "submitted",
-    events: [{ stage: "submitted", at: "2026-11-02T09:00:00.000Z", note: "" }],
-  });
+  state.applications.push(
+    {
+      id: "application-example",
+      candidateId: bob.id,
+      jobId: job.id,
+      companyId: job.companyId,
+      jobTitle: job.title,
+      candidateName: bob.name,
+      cv: bob.cv,
+      answer:
+        "Pracowałem nad automatyzacją obsługi zgłoszeń. Poprowadziłem badania z użytkownikami i wdrożenie, które skróciło czas odpowiedzi o 25%. Chętnie opowiem o decyzjach i ograniczeniach tego projektu.",
+      sourceNotes: "",
+      generatedAnswer: "",
+      score: bob.exampleScore,
+      summary: bob.exampleSummary,
+      stage: "submitted",
+      events: [{ stage: "submitted", at: "2026-11-02T09:00:00.000Z", note: "" }],
+    },
+    {
+      id: "application-anna-brightlabs",
+      candidateId: anna.id,
+      jobId: job.id,
+      companyId: job.companyId,
+      jobTitle: job.title,
+      candidateName: anna.name,
+      cv: anna.cv,
+      answer:
+        "Prowadziłam rozwój asystenta do zgłoszeń: badania z użytkownikami, priorytetyzację i wdrożenie z zespołem inżynierów. Chcę przełożyć ten sposób pracy na rolę AI Product Manager w BrightLabs.",
+      sourceNotes: "",
+      generatedAnswer: "",
+      score: anna.exampleScore,
+      summary: anna.exampleSummary,
+      stage: "submitted",
+      events: [{ stage: "submitted", at: "2026-11-02T10:15:00.000Z", note: "" }],
+    },
+    {
+      id: "application-piotr-brightlabs",
+      candidateId: piotr.id,
+      jobId: job.id,
+      companyId: job.companyId,
+      jobTitle: job.title,
+      candidateName: piotr.name,
+      cv: piotr.cv,
+      answer:
+        "Budowałem agentów w produkcji dla 3 klientów i poprawiałem obsługę błędów tool-callingu (retry). Jestem ekspertem od RAG i ewaluacji — chętnie dołączę do AI Product Manager tracku po stronie technicznej produktu.",
+      sourceNotes: "",
+      generatedAnswer: "",
+      score: piotr.exampleScore,
+      summary: piotr.exampleSummary,
+      stage: "submitted",
+      events: [{ stage: "submitted", at: "2026-11-02T11:30:00.000Z", note: "" }],
+    },
+  );
   return stateSchema.parse(state);
 }
 export function publishedJobs(state: State): JobWithCompany[] {

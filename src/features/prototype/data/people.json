@@ -22,6 +22,17 @@
     "exampleSummary": "Doświadczenie w produktach B2B i automatyzacji obsługi. Podczas rozmowy warto doprecyzować zakres samodzielnych decyzji."
   },
   {
+    "id": "candidate-piotr",
+    "role": "candidate",
+    "name": "Piotr Jankowski",
+    "headline": "AI Engineer · agenci i RAG",
+    "bio": "Buduję agentów i pipeline’y RAG dla klientów B2B.",
+    "location": "Wrocław",
+    "cv": "Piotr Jankowski — AI Engineer\n2023–2026: budowa agentów w produkcji dla 3 klientów. RAG, tool-calling, ewaluacja jakości odpowiedzi.\n2021–2023: backend Python / FastAPI.\nUmiejętności: agenci LLM, RAG, ewaluacja, LangChain.",
+    "exampleScore": 91,
+    "exampleSummary": "Wysoki wynik przykładowy przy deklaratywnym opisie agentów. Warto oddzielić artefakty od samooceny przed zaproszeniem."
+  },
+  {
     "id": "employer-brightlabs",
     "role": "employer",
     "companyId": "10000000-0000-4000-8000-000000000001",

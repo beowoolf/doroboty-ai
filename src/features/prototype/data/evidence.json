@@ -1,0 +1,94 @@
+[
+  {
+    "applicationId": "application-example",
+    "candidateId": "candidate-marek",
+    "blurb": "Widać metrykę 25% i opis automatyzacji; brak artefaktu AI (prompt, ewaluacja, zrzut modelu).",
+    "evidences": [
+      {
+        "title": "Metryka skrócenia czasu odpowiedzi o 25%",
+        "body": "CV i odpowiedź wskazują ten sam efekt automatyzacji obsługi. Da się dopytać o baseline i okres pomiaru.",
+        "source": "CV + przesłana aplikacja"
+      }
+    ],
+    "declarations": [
+      {
+        "title": "„Chętnie opowiem o decyzjach i ograniczeniach”",
+        "body": "Zapowiedź rozmowy bez zapisanego artefaktu decyzji produktowych ani logu eksperymentu.",
+        "source": "Przesłana aplikacja"
+      },
+      {
+        "title": "Dopasowanie do roli AI Product Manager",
+        "body": "Materiał opisuje automatyzację B2B i backlog, ale nie pokazuje pracy z modelem, promptem ani ewaluacją.",
+        "source": "Całość aplikacji vs wymagania oferty"
+      }
+    ],
+    "questions": [
+      "Jak mierzyliście te 25% — jaki baseline, okres i źródło danych?",
+      "Które decyzje produktowe podejmował Pan samodzielnie, a które z zespołem?",
+      "Czy ma Pan przykład pracy z modelem AI, promptem albo ewaluacją jakości w tym projekcie?"
+    ]
+  },
+  {
+    "applicationId": "application-anna-brightlabs",
+    "candidateId": "candidate-anna",
+    "blurb": "Asystent do zgłoszeń + badania z 18 użytkownikami + 30% skrócenia obsługi; warto dopytać o pomiar i rolę przy AI.",
+    "evidences": [
+      {
+        "title": "Wdrożenie asystenta do zgłoszeń",
+        "body": "CV opisuje priorytetyzację i wdrożenie asystenta dla zespołów operacyjnych — konkretny produkt, nie sama deklaracja „znam AI”.",
+        "source": "CV · 2022–2026"
+      },
+      {
+        "title": "Badania z 18 użytkownikami",
+        "body": "Liczba uczestników discovery jest podana wprost. Da się sprawdzić metodę i wpływ na backlog.",
+        "source": "CV"
+      },
+      {
+        "title": "Skrócenie czasu obsługi o 30%",
+        "body": "Efekt ilościowy powiązany z wdrożeniem asystenta. Do weryfikacji: definicja metryki i okres.",
+        "source": "CV"
+      }
+    ],
+    "declarations": [
+      {
+        "title": "„Prototypowanie AI” na liście umiejętności",
+        "body": "Umiejętność bez załączonego promptu, notebooka ani raportu ewaluacji jakości modelu.",
+        "source": "Sekcja umiejętności w CV"
+      }
+    ],
+    "questions": [
+      "Jak wyglądał przepływ asystenta — reguły, model, czy eskalacja do człowieka?",
+      "Które wnioski z 18 wywiadów zmieniły priorytety backlogu?",
+      "Jak liczyliście 30% krótszej obsługi i co było grupą porównawczą?"
+    ]
+  },
+  {
+    "applicationId": "application-piotr-brightlabs",
+    "candidateId": "candidate-piotr",
+    "blurb": "Wysoki Match Score przy prawie samych deklaracjach o „produkcyjnych agentach” — jeden słaby sygnał w opisie.",
+    "evidences": [
+      {
+        "title": "Wzmianka o poprawce tool-callingu",
+        "body": "W odpowiedzi jest jedno zdanie o retry przy błędach narzędzia. Brak linku do PR ani testu — słaby, ale konkretniejszy ślad niż reszta tekstu.",
+        "source": "Przesłana aplikacja"
+      }
+    ],
+    "declarations": [
+      {
+        "title": "„Budowałem agentów w produkcji dla 3 klientów”",
+        "body": "Brak nazw, stacku, metryk sukcesu i artefaktów. Nie oddziela roli od pracy zespołu.",
+        "source": "Przesłana aplikacja"
+      },
+      {
+        "title": "„Ekspert od RAG i ewaluacji”",
+        "body": "Samoocena bez przykładu pytania ewaluacyjnego, raportu jakości ani notebooka.",
+        "source": "CV / bio"
+      }
+    ],
+    "questions": [
+      "Proszę pokazać diff lub opis tej poprawki tool-callingu — jaki limit retry i co logowaliście?",
+      "Jeden przykład metryki jakości RAG, którą mierzyliście przed wdrożeniem?",
+      "Dla którego z trzech klientów Pan był właścicielem rozwiązania, a nie tylko uczestnikiem?"
+    ]
+  }
+]

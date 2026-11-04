@@ -14,6 +14,8 @@ import { currentPerson, publishedJobs, stageLabels, MIN_APPLICATION_ANSWER_LENGT
 import { PageTitle, Empty, NotFound, Notice } from "./shell";
 import { CvAttachment } from "./cv-attachment";
 import { MatchScore } from "./match-score";
+import { EvidenceListHints } from "./evidence-card";
+import { evidenceCardFor } from "./evidence";
 import { RecruitingApplication } from "./recruiting-application";
 import { CandidateApplication } from "./candidate-application";
 
@@ -435,28 +437,32 @@ export function ApplicationsPage({ employer = false }: { employer?: boolean }) {
       </Field>
       <div className="mt-6 space-y-4">
         {applications.length ? (
-          applications.map((a) => (
-            <article className="prototype-panel" key={a.id}>
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <Link
-                    className="text-xl font-semibold text-[var(--gui-link)]"
-                    to={`${employer ? "/app/kandydaci" : "/app/aplikacje"}/${a.id}`}
-                  >
-                    {employer ? a.candidateName : a.jobTitle}
-                  </Link>
-                  <p className="my-3 text-muted-foreground">
-                    {employer
-                      ? a.jobTitle
-                      : state.companies.find((x) => x.id === a.companyId)?.name}
-                  </p>
-                  <p>{stageLabels[a.stage]}</p>
+          applications.map((a) => {
+            const evidenceCard = employer ? evidenceCardFor(a) : null;
+            return (
+              <article className="prototype-panel" key={a.id}>
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <Link
+                      className="text-xl font-semibold text-[var(--gui-link)]"
+                      to={`${employer ? "/app/kandydaci" : "/app/aplikacje"}/${a.id}`}
+                    >
+                      {employer ? a.candidateName : a.jobTitle}
+                    </Link>
+                    <p className="my-3 text-muted-foreground">
+                      {employer
+                        ? a.jobTitle
+                        : state.companies.find((x) => x.id === a.companyId)?.name}
+                    </p>
+                    <p>{stageLabels[a.stage]}</p>
+                  </div>
+                  <MatchScore score={a.score} />
                 </div>
-                <MatchScore score={a.score} />
-              </div>
-              {employer && <p className="mt-4 text-muted-foreground">{a.summary}</p>}
-            </article>
-          ))
+                {employer && <p className="mt-4 text-muted-foreground">{a.summary}</p>}
+                {evidenceCard ? <EvidenceListHints card={evidenceCard} /> : null}
+              </article>
+            );
+          })
         ) : (
           <Empty>Brak aplikacji spełniających kryteria.</Empty>
         )}

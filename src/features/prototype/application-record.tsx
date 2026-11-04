@@ -21,6 +21,7 @@ export function ApplicationRecord({
   statusRef,
   children,
   footer,
+  marginLead,
 }: {
   application: Pick<
     Application,
@@ -32,6 +33,8 @@ export function ApplicationRecord({
   statusRef?: Ref<HTMLSpanElement>;
   children?: ReactNode;
   footer?: ReactNode;
+  /** Employer-only supporting panel (e.g. prepared evidence card). */
+  marginLead?: ReactNode;
 }) {
   const candidate = audience === "candidate";
   const title = candidate ? application.jobTitle : application.candidateName;
@@ -99,6 +102,7 @@ export function ApplicationRecord({
           {children}
         </RecordSheet>
         <aside className="recruiting-margin" aria-label="Historia i podsumowanie">
+          {marginLead}
           <section aria-labelledby="process-heading">
             <h2 id="process-heading">Historia procesu</h2>
             <ProcessTimeline

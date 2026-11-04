@@ -2,6 +2,8 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ApplicationRecord } from "./application-record";
+import { EvidenceCard } from "./evidence-card";
+import { evidenceCardFor } from "./evidence";
 import { nextStages, stageLabels, type Application } from "./model";
 import { usePrototype } from "./store";
 
@@ -13,6 +15,7 @@ export function RecruitingApplication({ application }: { application: Applicatio
   const pendingFocus = useRef(false);
   const company = state.companies.find((item) => item.id === application.companyId);
   const availableStages = nextStages[application.stage];
+  const evidenceCard = evidenceCardFor(application);
 
   useLayoutEffect(() => {
     if (pendingFocus.current) {
@@ -29,6 +32,7 @@ export function RecruitingApplication({ application }: { application: Applicatio
         audience="employer"
         history={application.events}
         statusRef={statusRef}
+        marginLead={evidenceCard ? <EvidenceCard card={evidenceCard} /> : null}
         footer={
           availableStages.length > 0 ? (
             <>
