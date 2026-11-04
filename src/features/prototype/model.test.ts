@@ -4,13 +4,20 @@ const time = "2026-11-03T10:00:00.000Z";
 function as(state: State, id: string) {
   return transition(state, { type: "select_person", id });
 }
+/** Second BrightLabs job — seed already fills jobs[0] for Anna/Marek/Piotr. */
+function openBrightLabsJob(state: State) {
+  const brightLabs = state.jobs[0].companyId;
+  return state.jobs.find(
+    (job) => job.companyId === brightLabs && job.id !== state.jobs[0].id,
+  )!;
+}
 function submitted() {
   const s = as(initialState(), "candidate-anna");
   return transition(
     s,
     {
       type: "submit",
-      jobId: s.jobs[0].id,
+      jobId: openBrightLabsJob(s).id,
       notes: "Original notes",
       generated: "Generated copy",
       answer: "Approved application with sufficient context.",
@@ -25,7 +32,7 @@ describe("coherent browser scenario", () => {
     const s = as(initialState(), "candidate-anna");
     const input = {
       type: "submit" as const,
-      jobId: s.jobs[0].id,
+      jobId: openBrightLabsJob(s).id,
       notes: "",
       generated: "",
       answer: "Approved application with sufficient context.",
@@ -33,7 +40,7 @@ describe("coherent browser scenario", () => {
     };
     expect(() => transition(s, input, time)).toThrow("Zatwierdź");
     expect(() => transition(submitted(), { ...input, consent: true }, time)).toThrow("już wysłana");
-    expect(s.applications).toHaveLength(1);
+    expect(s.applications).toHaveLength(3);
   });
   it("preserves approved sources while profile and notes evolve", () => {
     const s = submitted();
@@ -130,7 +137,7 @@ describe("coherent browser scenario", () => {
     const updated = { ...state.jobs[0], title: "Updated public role" };
     const result = transition(state, { type: "publish", job: updated });
     expect(result.jobs[0].title).toBe("Updated public role");
-    expect(result.applications.at(-1)?.jobTitle).toBe("AI Product Manager");
+    expect(result.applications.at(-1)?.jobTitle).toBe("AI Operations Specialist");
     expect(() =>
       transition(as(state, "employer-northstar"), { type: "publish", job: updated }),
     ).toThrow();
