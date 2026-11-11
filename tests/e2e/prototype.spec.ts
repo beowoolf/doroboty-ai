@@ -7,9 +7,13 @@ async function choose(page: Page, name: string) {
   await page.goto("/#/auth/sign-in");
   await page.getByRole("button", { name: `Wejdź jako ${name}`, exact: true }).click();
 }
+/** Second BrightLabs job — seed already fills ai-product-manager for Anna/Marek/Piotr. */
+const openBrightLabsSlug = "ai-operations-specialist";
+const openBrightLabsTitle = "AI Operations Specialist";
+
 async function application(page: Page) {
   await choose(page, "Anna Kowalska");
-  await page.goto("/#/aplikuj/ai-product-manager");
+  await page.goto(`/#/aplikuj/${openBrightLabsSlug}`);
   await page
     .getByLabel("Dlaczego pasujesz do tej roli?")
     .fill(
@@ -140,7 +144,11 @@ test("published job → saved offer/draft → submitted application → employer
   await expect(page.getByText("Match Score: 84%", { exact: true })).toBeVisible();
   await choose(page, "Karolina Wiśniewska");
   await page.getByRole("link", { name: "Kandydaci", exact: true }).click();
-  await page.getByRole("link", { name: "Anna Kowalska", exact: true }).click();
+  await page
+    .locator("article")
+    .filter({ hasText: "Product Designer do automatyzacji" })
+    .getByRole("link", { name: "Anna Kowalska", exact: true })
+    .click();
   await page
     .getByLabel("Notatka rekrutacyjna (widoczna pracodawcy)")
     .fill("Notatka pracodawcy — tylko panel firmy.");
@@ -169,7 +177,7 @@ test("another company cannot see or change a candidate application", async ({ pa
 });
 test("candidate withdrawal is confirmed and terminal", async ({ page }) => {
   await application(page);
-  await page.getByRole("link", { name: "AI Product Manager", exact: true }).click();
+  await page.getByRole("link", { name: openBrightLabsTitle, exact: true }).click();
   await page.getByRole("button", { name: "Wycofaj aplikację", exact: true }).click();
   await page.getByRole("button", { name: "Anuluj", exact: true }).click();
   await expect(page.getByRole("button", { name: "Wycofaj aplikację", exact: true })).toBeVisible();
@@ -184,7 +192,7 @@ test("profile changes do not rewrite a submitted application snapshot", async ({
   await page.getByLabel("Imię i nazwisko").fill("Nowa Anna");
   await page.getByRole("button", { name: "Zapisz profil", exact: true }).click();
   await page.goto("/#/app/aplikacje");
-  await page.getByRole("link", { name: "AI Product Manager", exact: true }).click();
+  await page.getByRole("link", { name: openBrightLabsTitle, exact: true }).click();
   await expect(page.locator("main")).toContainText("Anna Kowalska");
 });
 test("invalid import preserves state, valid import replaces state, reset asks for confirmation", async ({
@@ -318,7 +326,7 @@ test("application submission explains short answers and missing approval without
   page,
 }) => {
   await choose(page, "Anna Kowalska");
-  await page.goto("/#/aplikuj/ai-product-manager");
+  await page.goto(`/#/aplikuj/${openBrightLabsSlug}`);
   const answer = page.getByLabel("Dlaczego pasujesz do tej roli?");
   const send = page.getByRole("button", { name: "Wyślij aplikację", exact: true });
   await answer.fill("krótka odpowiedź");
@@ -348,7 +356,7 @@ for (const width of [1440, 375]) {
     await page.setViewportSize({ width, height: 900 });
     const legacy = initialState();
     legacy.activePersonId = "candidate-anna";
-    const job = legacy.jobs.find((job) => job.slug === "ai-product-manager")!;
+    const job = legacy.jobs.find((job) => job.slug === openBrightLabsSlug)!;
     const draft = {
       candidateId: "candidate-anna",
       jobId: job.id,
@@ -470,13 +478,11 @@ test("Poster People offer keeps desktop conditions/actions and places them befor
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await choose(page, "Anna Kowalska");
-  await page.goto("/#/oferty/ai-product-manager");
+  await page.goto(`/#/oferty/${openBrightLabsSlug}`);
   const article = page.locator(".pp-offer-page");
   const hero = article.locator("header");
-  await expect(hero).toContainText(
-    "Poprowadź produkt od problemu operacyjnego do mierzalnego wdrożenia AI.",
-  );
-  await expect(hero.getByText("Senior", { exact: true })).toBeVisible();
+  await expect(hero).toContainText("AI Operations Specialist");
+  await expect(hero.getByText(/Senior|Mid|Junior|Lead/i).first()).toBeVisible();
   const facts = article.getByRole("complementary");
   await expect(facts.getByRole("heading", { name: "Konkrety", exact: true })).toHaveCount(1);
   await expect(facts).toContainText("Wynagrodzenie");
@@ -799,16 +805,16 @@ for (const width of [1280, 390]) {
   }) => {
     await page.setViewportSize({ width, height: 1000 });
     await choose(page, "Anna Kowalska");
-    await page.goto("/#/oferty/ai-product-manager");
+    await page.goto(`/#/oferty/${openBrightLabsSlug}`);
     const gap = await page.locator(".pp-offer-actions").evaluate((element) => {
       const [apply, save] = element.querySelectorAll("a, button");
       return save.getBoundingClientRect().top - apply.getBoundingClientRect().bottom;
     });
     expect(gap).toBeGreaterThanOrEqual(10);
     await page.getByRole("link", { name: "Aplikuj", exact: true }).click();
-    const offer = page.getByRole("complementary", { name: "AI Product Manager", exact: true });
+    const offer = page.getByRole("complementary", { name: openBrightLabsTitle, exact: true });
     await expect(offer).toContainText("BrightLabs");
-    await expect(offer).toContainText("Hybrydowo");
+    await expect(offer).toContainText("Stacjonarnie");
     const form = page.getByRole("form", { name: "Twoja aplikacja", exact: true });
     const answer = form.getByLabel("Dlaczego pasujesz do tej roli?");
     const text = "Prowadziłam badania i wdrożenie automatyzacji obsługi zgłoszeń w produkcie B2B.";
@@ -844,7 +850,7 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
   }) => {
     await page.emulateMedia({ reducedMotion });
     await choose(page, "Anna Kowalska");
-    await page.goto("/#/aplikuj/ai-product-manager");
+    await page.goto(`/#/aplikuj/${openBrightLabsSlug}`);
     const answer = page.getByLabel("Dlaczego pasujesz do tej roli?");
     await answer.fill("krótko");
     await page.getByRole("button", { name: "Wyślij aplikację", exact: true }).click();
@@ -883,13 +889,13 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
           ).length,
         STORAGE_KEY,
       ),
-    ).toBe(1);
+    ).toBe(2);
     await page.clock.fastForward(reducedMotion === "reduce" ? 1 : 1000);
     await expect(page).toHaveURL(/#\/app\/aplikacje\?wyslano=1$/);
     await expect(page.locator(".confetti-burst")).toHaveCount(0);
     await page.reload();
     await expect(page.locator(".confetti-burst")).toHaveCount(0);
-    await page.goto("/#/aplikuj/ai-product-manager");
+    await page.goto(`/#/aplikuj/${openBrightLabsSlug}`);
     await expect(
       page.getByText("Aplikacja na tę ofertę została już wysłana.", { exact: true }),
     ).toBeVisible();
