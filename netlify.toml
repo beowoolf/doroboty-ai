@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+# HashRouter działa bez rewrite, ale zostawiamy SPA fallback na wypadek bezpośrednich URL.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
