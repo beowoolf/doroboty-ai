@@ -1,4 +1,5 @@
 import { HashRouter, Routes, Route, Navigate } from "react-router";
+import { PostHogPageview } from "@/features/analytics/posthog-pageview";
 import { PrototypeProvider } from "./store";
 import { Shell, NotFound } from "./shell";
 import HomePage from "./home";
@@ -19,7 +20,9 @@ import { SettingsPage, PrivacyPage } from "./settings";
 import { CasePage } from "./case";
 function AppRoutes() {
   return (
-    <Routes>
+    <>
+      <PostHogPageview />
+      <Routes>
       <Route element={<Shell />}>
         <Route index element={<HomePage />} />
         <Route path="oferty" element={<JobsPage />} />
@@ -145,6 +148,7 @@ function AppRoutes() {
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
+    </>
   );
 }
 export function App() {
